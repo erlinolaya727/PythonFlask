@@ -8,7 +8,11 @@
   <meta name="description" content="" />
   <meta name="author" content="" />
 
-  <title>SB Admin 2 - Blank</title>
+  <title>
+    {% block tituloPagina %}
+    SB Admin 2 - Blank
+    {% endblock tituloPagina %}
+  </title>
 
   <!-- Custom fonts for this template -->
   <link href="static/fontawesome-free/css/all.min.css" rel="stylesheet" type="text/css" />
@@ -20,10 +24,13 @@
   <link href="static/css/sb-admin-2.min.css" rel="stylesheet" />
 </head>
 
+
 <body id="page-top">
+
   <!-- Page Wrapper -->
   <div id="wrapper">
     <!-- Sidebar -->
+    {% block menuLateral %}
     <ul class="navbar-nav bg-gradient-primary sidebar sidebar-dark accordion" id="accordionSidebar">
       <!-- Sidebar - Brand -->
       <a class="sidebar-brand d-flex align-items-center justify-content-center" href="index.html">
@@ -110,11 +117,13 @@
       </div>
     </ul>
     <!-- End of Sidebar -->
+    {% endblock menuLateral %}
 
     <!-- Content Wrapper -->
     <div id="content-wrapper" class="d-flex flex-column">
       <!-- Main Content -->
       <div id="content">
+        {% block cabecera %}
         <!-- Topbar -->
         <nav class="navbar navbar-expand navbar-light bg-white topbar mb-4 static-top shadow">
           <!-- Sidebar Toggle (Topbar) -->
@@ -162,7 +171,9 @@
           </ul>
         </nav>
         <!-- End of Topbar -->
+        {% endblock cabecera %}
 
+        {% block areaTrabajo %}
         <!-- Begin Page Content -->
         <div class="container-fluid">
           <!-- Page Heading -->
@@ -256,9 +267,11 @@
           </div>
         </div>
         <!-- /.container-fluid -->
+        {% endblock areaTrabajo %}
       </div>
       <!-- End of Main Content -->
-
+      
+      {% block piePagina %}
       <!-- Footer -->
       <footer class="sticky-footer bg-white">
         <div class="container my-auto">
@@ -268,6 +281,7 @@
         </div>
       </footer>
       <!-- End of Footer -->
+      {% endblock piePagina %}
     </div>
     <!-- End of Content Wrapper -->
   </div>
