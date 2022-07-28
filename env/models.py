@@ -40,7 +40,7 @@ class Room(db.Model):
     size = db.Column(db.Integer, nullable=False)
     state = db.Column(db.String(length=15), nullable=False)
     created_at = db.Column(db.DateTime(timezone=True),server_default=func.now())
-    host = db.Column(db.String(length=30), db.ForeignKey('user.id'))
+    host = db.Column(db.Integer(), db.ForeignKey('user.id'))
     
     
     def __init__(self, roomNumber:int, size:int, state:str):

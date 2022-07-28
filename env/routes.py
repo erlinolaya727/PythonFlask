@@ -15,3 +15,8 @@ def crud_usuario_page():
 def crud_room_page():
     rooms = Room.get_objects()
     return render_template('roomCrud.html',rooms = rooms)
+
+@app.route('/control_reservation')
+def crud_reservation_page():
+    #rooms = Room.get_objects()
+    return render_template('reservationCrud.html')
