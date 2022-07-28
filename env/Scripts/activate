@@ -38,7 +38,7 @@ deactivate () {
 # unset irrelevant variables
 deactivate nondestructive
 
-VIRTUAL_ENV="C:\Users\erlin\OneDrive\Desktop\PythonFlask\env"
+VIRTUAL_ENV="C:\Users\Administrador\Desktop\PythonFlask\env"
 export VIRTUAL_ENV
 
 _OLD_VIRTUAL_PATH="$PATH"
