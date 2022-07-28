@@ -95,7 +95,7 @@ main{
 
 .contenedor__login-register form{
     width: 100%;
-    padding:65px 20px;
+    padding:55px 30px;
     background: white;
     position: absolute;
     border-radius: 20px;
@@ -143,6 +143,63 @@ main{
     display: none;
 }
 
+.label_check{
+    position: relative;
+    top:5px;
+    display: block;
+    
+}
+
+#spanText{
+    position:absolute;
+    top:15px;
+    left:40px;
+    bottom:30px;
+    display:inline-block;
+    
+}
+
+#spanText:link{
+    color:#AFD4FA;
+    text-decoration: none;
+}
+
+#spanText:visited{
+    color:#AFD4FA;
+    text-decoration: none;
+}
+
+#contraseña:link{
+    color:#AFD4FA;
+    text-decoration: none;
+}
+
+#contraseña:visited{
+    color:#AFD4FA;
+    text-decoration: none;
+}
+
+#contraseña{
+    position: absolute;
+    display: inline-block;
+    top:30px;
+    left: -150px;
+}
+
+.contenedor_contraseña{
+    display:inline-block;
+    position:relative;
+    width: 100px;
+}
+
+
+
+#checkbox{
+    position:relative;
+    left: -150px;
+
+    
+}
 
 
 @media screen and (max-width: 850px){
