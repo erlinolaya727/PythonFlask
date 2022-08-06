@@ -1,62 +1,106 @@
+from datetime import date
 from env import db
 from env import func
 
+user_room = db.Table('user_room',
+                     db.Column('user_id', db.Integer,
+                               db.ForeignKey('user.id')),
+                     db.Column('room_id', db.Integer, db.ForeignKey('room.id'))
+                     )
+
+
 class User(db.Model):
-    id = db.Column(db.Integer, primary_key=True,autoincrement=True)
-    name = db.Column(db.String(length=30), nullable=False, unique=True)
-    username = db.Column(db.String(length=30), nullable=False, unique=True)
-    attribute = db.Column(db.String(length=15), nullable=False)
+
+    __tablename__ = 'user'
+
+    id = db.Column(db.Integer, primary_key=True, autoincrement=True)
+    name = db.Column(db.String(length=45), nullable=False)
+    birth_date = db.Column(db.String(length=10), nullable=False)
+    rol = db.Column(db.String(length=20), nullable=False)
     phone = db.Column(db.Integer, nullable=False, unique=True)
     document = db.Column(db.Integer, nullable=False, unique=True)
-    email_address = db.Column(db.String(length=50), nullable=False, unique=True)
+    email_address = db.Column(db.String(length=50),
+                              nullable=False, unique=True)
     password_hash = db.Column(db.String(length=60), nullable=False)
-    created_at = db.Column(db.DateTime(timezone=True),server_default=func.now())
-    room = db.relationship('Room',backref='room_asigned', lazy=True)
-    
-    def __init__(self, name:str, username: str, attribute:str,phone: int, document:int,email_address: str, password_hash: str):
-        
+    created_at = db.Column(db.DateTime(timezone=True),
+                           server_default=func.now())
+
+    comments = db.relationship(
+        'Calificacion', backref='comment_by', lazy=True)
+
+    def __init__(self, name: str, birth_date: date, rol: str, phone: int, document: int, email_address: str, password_hash: str):
+
         self.name = name
-        self.username = username
-        self.attribute = attribute
+        self.birth_date = birth_date
+        self.rol = rol
         self.phone = phone
         self.document = document
-        self.email_address= email_address
+        self.email_address = email_address
         self.password_hash = password_hash
-        
+
     def __repr__(self):
-        return f'User {self.username}'
-        
-    def create_user(name:str, username: str, attribute:str, phone: int, document:int,email_address: str, password_hash: str):
-        user = User(name,username,attribute,phone,document,email_address,password_hash)
+        return f'User: {self.name} \n'
+
+    def create_user(name: str, birth_date: date, rol: str, phone: int, document: int, email_address: str, password_hash: str):
+        user = User(name, birth_date, rol, phone,
+                    document, email_address, password_hash)
+
         db.session.add(user)
         db.session.commit()
-    
-    def get_objects():
-        return User.query.all()
-    
+        db.session.close()
+
+
 class Room(db.Model):
-    id = db.Column(db.Integer, primary_key=True,autoincrement=True)
-    roomNumber = db.Column(db.Integer, nullable=False, unique=True)
-    size = db.Column(db.Integer, nullable=False)
-    state = db.Column(db.String(length=15), nullable=False)
-    created_at = db.Column(db.DateTime(timezone=True),server_default=func.now())
-    host = db.Column(db.Integer(), db.ForeignKey('user.id'))
-    
-    
-    def __init__(self, roomNumber:int, size:int, state:str):
-        
+
+    __tablename__ = 'room'
+
+    id = db.Column(db.Integer, primary_key=True, autoincrement=True)
+    roomNumber = db.Column(db.String(length=3), nullable=False, unique=True)
+    disponibilidad = db.Column(db.Integer, nullable=False)
+
+    calificacion = db.relationship(
+        'Calificacion', backref='room_score', lazy=True)
+
+    #created_at = db.Column(db.DateTime(timezone=True),server_default=func.now())
+    #host = db.Column(db.Integer(), db.ForeignKey('user.id'))
+
+    def __init__(self, roomNumber: int, disponibilidad: int):
+
         self.roomNumber = roomNumber
-        self.size = size
-        self.state = state
-        
-    def create_room(roomNumber:int, size:int,state:str):
-        room = Room(roomNumber, size, state)
+        self.disponibilidad = disponibilidad
+
+    def create_room(roomNumber: int, disponibilidad: int):
+        room = Room(roomNumber, disponibilidad)
         db.session.add(room)
         db.session.commit()
-    
+        db.session.close()
+
     def __repr__(self):
-        return f'Room: {self.roomNumber}'
-    
-    def get_objects():
-        return Room.query.all()
-    
+        return f'Habitacion No.: {self.roomNumber} - Estado: {self.disponibilidad} \n'
+
+
+class Calificacion(db.Model):
+
+    __tablename__ = 'score'
+
+    id = db.Column(db.Integer, primary_key=True, autoincrement=True)
+    num_score = db.Column(db.Integer, nullable=False)
+    comentario = db.Column(db.String(length=150), nullable=False)
+    created_at = db.Column(db.DateTime(timezone=True),
+                           server_default=func.now())
+
+    room_commented = db.Column(db.Integer, db.ForeignKey('room.id'))
+    commented_by = db.Column(db.Integer, db.ForeignKey('user.id'))
+
+    def __init__(self, num_score: int, comentario: str):
+        self.num_score = num_score
+        self.comentario = comentario
+
+    def create_score(num_score: int, comentario: str):
+        score = Calificacion(num_score, comentario)
+        db.session.add(score)
+        db.session.commit()
+        db.session.close()
+
+    def __repr__(self):
+        return f'Calificacion: {self.num_score} - Comentario: {self.comentario} \n'
