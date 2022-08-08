@@ -1,16 +1,10 @@
 from datetime import date
 from env import db
 from env import func
-
-user_room = db.Table('user_room',
-                     db.Column('user_id', db.Integer,
-                               db.ForeignKey('user.id')),
-                     db.Column('room_id', db.Integer, db.ForeignKey('room.id'))
-                     )
+import uuid
 
 
 class User(db.Model):
-
     __tablename__ = 'user'
 
     id = db.Column(db.Integer, primary_key=True, autoincrement=True)
@@ -28,8 +22,11 @@ class User(db.Model):
     comments = db.relationship(
         'Calificacion', backref='comment_by', lazy=True)
 
-    def __init__(self, name: str, birth_date: date, rol: str, phone: int, document: int, email_address: str, password_hash: str):
+    booked = db.relationship(
+        'Reserva', backref='booked_by', lazy=True)
 
+    def __init__(self, name: str, birth_date: date, rol: str, phone: int, document: int, email_address: str,
+                 password_hash: str):
         self.name = name
         self.birth_date = birth_date
         self.rol = rol
@@ -41,7 +38,8 @@ class User(db.Model):
     def __repr__(self):
         return f'User: {self.name} \n'
 
-    def create_user(name: str, birth_date: date, rol: str, phone: int, document: int, email_address: str, password_hash: str):
+    def create_user(name: str, birth_date: str, rol: str, phone: int, document: int, email_address: str,
+                    password_hash: str):
         user = User(name, birth_date, rol, phone,
                     document, email_address, password_hash)
 
@@ -49,29 +47,80 @@ class User(db.Model):
         db.session.commit()
         db.session.close()
 
+    def delete_user(id:int):
+        User.query.filter_by(id=id).delete()
+        db.session.commit()
+        db.session.close()
+
+
+class Reserva(db.Model):
+
+    __tablename__ = 'reserva'
+
+    id = db.Column(db.Integer, primary_key=True, autoincrement=True)
+    num_reserva = db.Column(db.String, unique=True, nullable=False)
+    check_in_date = db.Column(db.String, nullable=False)
+    check_out_date = db.Column(db.String, nullable=False)
+    costo_reserva = db.Column(db.String, nullable=False)
+
+    room_booking = db.Column(db.Integer, db.ForeignKey('room.id'))
+    user_booking = db.Column(db.Integer, db.ForeignKey('user.id'))
+
+    '''
+    Por favor revisar - ajustar la forma de instanciar al flujo de trabajo, creo 
+    que en este caso se puede generar la reserva completa referenciando tanto la habitacion 
+    como el usuario a partir del logueo.
+    '''
+    def __init__(self, check_in_date: str, check_out_date: str, costo_reserva:str,room_booking:int,user_booking:int):
+        self.num_reserva = str(uuid.uuid4().int) #se crea un codigo de reserva con baja probabilidad de repeticion
+        self.check_in_date = check_in_date
+        self.check_out_date = check_out_date
+        self.costo_reserva = costo_reserva
+        self.room_booking = room_booking
+        self.user_booking = user_booking
+
+    def create_reserva(check_in_date:str, check_out_date:str, dias_reserva:int, room_booking:int,user_booking:int):
+        costo_reserva = dias_reserva * 100000
+        reserva = Reserva(check_in_date, check_out_date, costo_reserva, room_booking,user_booking)
+        db.session.add(reserva)
+        db.session.commit()
+
+    def delete_reserva(id:int):
+        Reserva.query.filter_by(id=id).delete()
+        db.session.commit()
+        db.session.close()
+
+    def __repr__(self):
+        return f'Reserva No.: {self.num_reserva} - Estado: {self.disponibilidad} \n'
+
+
 
 class Room(db.Model):
-
     __tablename__ = 'room'
 
     id = db.Column(db.Integer, primary_key=True, autoincrement=True)
     roomNumber = db.Column(db.String(length=3), nullable=False, unique=True)
     disponibilidad = db.Column(db.Integer, nullable=False)
+    costo = db.Column(db.Integer, nullable=False)
 
     calificacion = db.relationship(
         'Calificacion', backref='room_score', lazy=True)
 
-    #created_at = db.Column(db.DateTime(timezone=True),server_default=func.now())
-    #host = db.Column(db.Integer(), db.ForeignKey('user.id'))
+    reserva = db.relationship(
+        'Reserva', backref='room_booked', lazy=True)
 
     def __init__(self, roomNumber: int, disponibilidad: int):
-
         self.roomNumber = roomNumber
         self.disponibilidad = disponibilidad
+        self.costo = 100000
 
     def create_room(roomNumber: int, disponibilidad: int):
         room = Room(roomNumber, disponibilidad)
         db.session.add(room)
+        db.session.commit()
+
+    def delete_room(id:int):
+        Room.query.filter_by(id=id).delete()
         db.session.commit()
         db.session.close()
 
@@ -102,5 +151,17 @@ class Calificacion(db.Model):
         db.session.commit()
         db.session.close()
 
+    def delete_score(id:int):
+        Calificacion.query.filter_by(id=id).delete()
+        db.session.commit()
+        db.session.close()
+
     def __repr__(self):
         return f'Calificacion: {self.num_score} - Comentario: {self.comentario} \n'
+
+def delete_record(id:int):
+    User.delete_user(id)
+    Reserva.delete_reserva(id)
+    Calificacion.delete_score(id)
+    Room.delete_room(id)
+

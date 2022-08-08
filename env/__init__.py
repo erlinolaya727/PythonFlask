@@ -4,7 +4,7 @@ from sqlalchemy.sql import func
 
 import os
 
-db_path =os.path.abspath(os.getcwd())+'/env/db/user.db'
+db_path =os.path.abspath(os.getcwd())+'/env/db/hoteldb.db'
 #print(db_path)
 
 app = Flask(__name__,static_url_path="/static")
