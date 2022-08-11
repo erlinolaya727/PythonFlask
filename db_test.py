@@ -1,6 +1,8 @@
 from env import db
 from env.models import User, Room, Calificacion, Reserva, delete_record
 from datetime import datetime, timedelta
+from env import bcrypt
+
 
 '''
 Borrar toda la Base de datos
@@ -18,11 +20,12 @@ db.create_all()
 Instanciar las diferentes tablas, codigo sirve para demostrar como se crean nuevos registros en la db
 '''
 
-User.create_user('Vicente F', '05/16/1992','Administrador',5555555555,123456789,'vicentefb@uninorte.edu.co','password')
-User.create_user('Juan P', '05/16/1992','Administrador',5555555556,123456788,'juanpf@uninorte.edu.co','password')
-User.create_user('Juan B', '05/16/1992','Usuario',5555555546,123456388,'juanbr@uninorte.edu.co','password')
-User.create_user('Valentina O', '05/16/1992','Usuario',5555555356,123496788,'valentinaop@uninorte.edu.co','password')
-User.create_user('Daniela A', '05/16/1992','Administrador',5555535356,129496788,'danielaa@uninorte.edu.co','password')
+User.create_user('Vicente F', datetime.strptime('2022-05-16', '%Y-%m-%d'),'Administrador',5555555555,123456789,'vicentefb@uninorte.edu.co','password')
+User.create_user('Juan P', datetime.strptime('2022-05-16', '%Y-%m-%d'),'Administrador',5555555556,123456788,'juanpf@uninorte.edu.co','password')
+User.create_user('Juan B', datetime.strptime('2022-05-16', '%Y-%m-%d'),'Usuario',5555555546,123456388,'juanbr@uninorte.edu.co','password')
+User.create_user('Valentina O', datetime.strptime('2022-05-16', '%Y-%m-%d'),'Usuario',5555555356,123496788,'valentinaop@uninorte.edu.co','password')
+User.create_user('Daniela A', datetime.strptime('2022-05-16', '%Y-%m-%d'),'Administrador',5555535356,129496788,'danielaa@uninorte.edu.co','password')
+User.create_user('Jorge', datetime.strptime('2022-05-16', '%Y-%m-%d'),'Administrador',111111,123548,'jorge@uninorte.edu.co','Test')
 Room.create_room('101', 0)
 Room.create_room('201', 1)
 Room.create_room('301', 1)
@@ -34,11 +37,11 @@ Calificacion.create_score(4,'Buen desayuno')
 Calificacion.create_score(5,'Excelente atención')
 Calificacion.create_score(1,'Ratas en el baño')
 
-Reserva.create_reserva(str(datetime.now()),str(datetime.now() + timedelta(days=2)),5,5,1)
-Reserva.create_reserva(str(datetime.now()),str(datetime.now() + timedelta(days=2)),4,4,2)
-Reserva.create_reserva(str(datetime.now()),str(datetime.now() + timedelta(days=2)),3,3,3)
-Reserva.create_reserva(str(datetime.now()),str(datetime.now() + timedelta(days=2)),2,2,4)
-Reserva.create_reserva(str(datetime.now()),str(datetime.now() + timedelta(days=2)),1,1,2)
+Reserva.create_reserva(datetime.now(),datetime.now() + timedelta(days=2),5,1)
+Reserva.create_reserva(datetime.now(),datetime.now() + timedelta(days=2),5,1)
+Reserva.create_reserva(datetime.now(),datetime.now() + timedelta(days=2),5,1)
+Reserva.create_reserva(datetime.now(),datetime.now() + timedelta(days=2),5,1)
+Reserva.create_reserva(datetime.now(),datetime.now() + timedelta(days=2),5,1)
 
 '''
 Queries & Assignations
@@ -70,7 +73,7 @@ define al crear la referencia en models.py Puedo acceder tanto a usuario como a 
 print(Reserva.query.filter_by(id=2).first().booked_by)
 print(Reserva.query.filter_by(id=2).first().room_booked)
 
-Reserva.delete_reserva(3)
+#Reserva.delete_reserva(3)
 
 '''
 Pequeño metodo para borrar registros transversales,
@@ -82,3 +85,14 @@ utilziar com base
 #print(Calificacion.query.filter_by(num_score=3).first().commented_by)
 #i = Calificacion.query.filter_by(num_score = 3).first()
 #print(i)
+
+
+usuario = User.query.filter_by(name='Jorge').first().password_hash
+print(bcrypt.check_password_hash(usuario,'test'))
+
+'''
+Resta de tiempos
+'''
+
+dif = (datetime.strptime('2022-05-16', '%Y-%m-%d') - datetime.strptime('2022-05-16', '%Y-%m-%d')).days
+print(dif)

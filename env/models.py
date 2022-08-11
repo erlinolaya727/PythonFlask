@@ -1,6 +1,8 @@
 from datetime import date
 from env import db
 from env import func
+from env import bcrypt
+from datetime import datetime, timedelta
 import uuid
 
 
@@ -9,7 +11,7 @@ class User(db.Model):
 
     id = db.Column(db.Integer, primary_key=True, autoincrement=True)
     name = db.Column(db.String(length=45), nullable=False)
-    birth_date = db.Column(db.String(length=10), nullable=False)
+    birth_date = db.Column(db.Date, nullable=False)
     rol = db.Column(db.String(length=20), nullable=False)
     phone = db.Column(db.Integer, nullable=False, unique=True)
     document = db.Column(db.Integer, nullable=False, unique=True)
@@ -24,6 +26,18 @@ class User(db.Model):
 
     booked = db.relationship(
         'Reserva', backref='booked_by', lazy=True)
+    
+    @property
+    def password(self):
+        return self.password
+    
+    @password.setter
+    def password(self, plain_text_password):
+        self.password_hash = bcrypt.generate_password_hash(plain_text_password).decode('utf-8')
+
+    def check_password_correction(self, attempted_password):
+        return bcrypt.check_password_hash(self.password_hash, attempted_password)
+        
 
     def __init__(self, name: str, birth_date: date, rol: str, phone: int, document: int, email_address: str,
                  password_hash: str):
@@ -39,7 +53,10 @@ class User(db.Model):
         return f'User: {self.name} \n'
 
     def create_user(name: str, birth_date: str, rol: str, phone: int, document: int, email_address: str,
-                    password_hash: str):
+                    password: str):
+        
+        password_hash = bcrypt.generate_password_hash(password).decode('utf-8')
+        
         user = User(name, birth_date, rol, phone,
                     document, email_address, password_hash)
 
@@ -59,8 +76,9 @@ class Reserva(db.Model):
 
     id = db.Column(db.Integer, primary_key=True, autoincrement=True)
     num_reserva = db.Column(db.String, unique=True, nullable=False)
-    check_in_date = db.Column(db.String, nullable=False)
-    check_out_date = db.Column(db.String, nullable=False)
+    check_in_date = db.Column(db.DateTime, nullable=False)
+    check_out_date = db.Column(db.DateTime, nullable=False)
+    dias_reserva = db.Column(db.Integer, nullable=False)
     costo_reserva = db.Column(db.String, nullable=False)
 
     room_booking = db.Column(db.Integer, db.ForeignKey('room.id'))
@@ -71,17 +89,27 @@ class Reserva(db.Model):
     que en este caso se puede generar la reserva completa referenciando tanto la habitacion 
     como el usuario a partir del logueo.
     '''
-    def __init__(self, check_in_date: str, check_out_date: str, costo_reserva:str,room_booking:int,user_booking:int):
+    def __init__(self, check_in_date: date, check_out_date: date, dias_reserva:int,costo_reserva:str,room_booking:int,user_booking:int):
         self.num_reserva = str(uuid.uuid4().int) #se crea un codigo de reserva con baja probabilidad de repeticion
         self.check_in_date = check_in_date
         self.check_out_date = check_out_date
+        self.dias_reserva = dias_reserva
         self.costo_reserva = costo_reserva
         self.room_booking = room_booking
         self.user_booking = user_booking
 
-    def create_reserva(check_in_date:str, check_out_date:str, dias_reserva:int, room_booking:int,user_booking:int):
-        costo_reserva = dias_reserva * 100000
-        reserva = Reserva(check_in_date, check_out_date, costo_reserva, room_booking,user_booking)
+    def create_reserva(check_in_date:date, check_out_date:date, room_booking:int,user_booking:int):
+    
+        '''
+        Esta funcion para calcular el numero de dias de la reserva y guardar en db
+        Solo recibe valores en formato date asi que se debe ajustar el tipo antes de entrar aca
+        '''
+        PRECIO_HABITACION = 100000
+        
+        dias_reserva = (check_out_date - check_in_date).days 
+        
+        costo_reserva = dias_reserva * PRECIO_HABITACION
+        reserva = Reserva(check_in_date, check_out_date, dias_reserva, costo_reserva, room_booking,user_booking)
         db.session.add(reserva)
         db.session.commit()
 
@@ -109,12 +137,12 @@ class Room(db.Model):
     reserva = db.relationship(
         'Reserva', backref='room_booked', lazy=True)
 
-    def __init__(self, roomNumber: int, disponibilidad: int):
+    def __init__(self, roomNumber: str, disponibilidad: int):
         self.roomNumber = roomNumber
         self.disponibilidad = disponibilidad
         self.costo = 100000
 
-    def create_room(roomNumber: int, disponibilidad: int):
+    def create_room(roomNumber: str, disponibilidad: int):
         room = Room(roomNumber, disponibilidad)
         db.session.add(room)
         db.session.commit()

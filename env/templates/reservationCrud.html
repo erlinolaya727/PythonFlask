@@ -10,32 +10,35 @@
         <tr>
             <!-- Your Columns HERE -->
             <th scope="col">id</th>
-            <th scope="col">Nombre</th>
-            <th scope="col">Usuario</th>
-            <th scope="col">Habitacion no.</th>
-            <th scope="col">Fecha entrada</th>
-            <th scope="col">Fecah salida</th>
+            <th scope="col">Cod. Reserva</th>
+            <th scope="col">Fecha Ingreso</th>
+            <th scope="col">Fecha Salida</th>
             <th scope="col">No. dias</th>
+            <th scope="col">Valor Reserva</th>
+            <th scope="col">No. Habitacion</th>
+            <th scope="col">Usuario</th>
+            <th scope="col">Opciones</th>
         </tr>
     </thead>
     <tbody>
-        <!-- Your rows inside the table HERE: 
-        {% for user in users %}
+
+        {% for reserva in reservations %}
+        {% include 'includes/delete_reserva_modal.html' %}
             <tr>
-                <td>{{ user.id }}</td>
-                <td>{{ user.name }}</td>
-                <td>{{ user.username }}</td>
-                <td>{{ user.attribute }}</td>
-                <td>{{ user.phone }}</td>
-                <td>{{ user.document }} </td>
-                <td>{{ user.email_address }} </td>
+                <td>{{ reserva.id }}</td>
+                <td>{{ reserva.num_reserva }}</td>
+                <td>{{ reserva.check_in_date }}</td>
+                <td>{{ reserva.check_out_date }}</td>
+                <td>{{ reserva.dias_reserva }}</td>
+                <td>{{ reserva.costo_reserva }}</td>
+                <td>{{ reserva.room_booking }} </td>
+                <td>{{ reserva.user_booking }} </td>
                 <td>
-                    <button class="btn btn-outline btn-info">Editar</button>
-                    <button type="button" class="btn btn-outline btn-danger">Eliminar</button>
+                    <button type="button" class="btn btn-outline btn-danger" data-bs-toggle="modal"
+                    data-bs-target="#modal-reserva-delete-{{reserva.id}}">Eliminar</button>
                 </td>
             </tr>
-        {% endfor %}-->
+        {% endfor %}
     </tbody>
 </table>
-<button type="button" class="btn btn-success btn-lg btn-block">Agregar Nueva Reserva</button>
 {%endblock %}
