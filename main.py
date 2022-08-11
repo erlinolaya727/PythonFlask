@@ -14,29 +14,29 @@ app=Flask(__name__)
 app.secret_key='Mi_llave_secreta'
 
 
-@app.route('/')
-def inicio():
-    if 'username' in session:
-        return redirect(url_for('Reserva'))
-    return 'No ha hecho login'
+# @app.route('/')
+# def inicio():
+#     if 'username' in session:
+#         return redirect(url_for('Reserva'))
+#     return 'No ha hecho login'
 
-    # app.logger.info(f'Entramos al path {request.path}')
-    # return "Hola mundo desde flask"
-@app.route('/login',methods=['GET','POST'])
-def login():
-    if request.method == 'POST':
-        # Omitimos validacion de usuario y password
-        usuario = request.form['username']
-        # agregar el usuario a la session
-        session['username'] = usuario
-        #session['username'] = request.form['username']
-        return redirect(url_for('inicio'))
-    return render_template('login.html')
+#     # app.logger.info(f'Entramos al path {request.path}')
+#     # return "Hola mundo desde flask"
+# @app.route('/login',methods=['GET','POST'])
+# def login():
+#     if request.method == 'POST':
+#         # Omitimos validacion de usuario y password
+#         usuario = request.form['username']
+#         # agregar el usuario a la session
+#         session['username'] = usuario
+#         #session['username'] = request.form['username']
+#         return redirect(url_for('inicio'))
+#     return render_template('login.html')
 
-@app.route('/logout',methods=['POST','GET'])
-def logout():
-    session.pop('username')
-    return redirect(url_for('inicio'))
+# @app.route('/logout',methods=['POST','GET'])
+# def logout():
+#     session.pop('username')
+#     return redirect(url_for('inicio'))
 
 @app.route('/habitaciones')
 def Reserva():    
