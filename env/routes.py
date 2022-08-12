@@ -104,40 +104,27 @@ def home_page():
 @app.route('/control_user', methods=['GET','POST'])
 def crud_usuario_page():
     
-    if request.method == 'POST':
-        
-        updated_user = User.query.filter_by(id=request.form.get('id')).first()
-        
-        if request.form.get('action') == 'editar':
-            
+    if request.method == 'POST':        
+        updated_user = User.query.filter_by(id=request.form.get('id')).first()        
+        if request.form.get('action') == 'editar':            
             updated_user.name = request.form.get('name')
             updated_user.birth_date = datetime.strptime(str(request.form.get('nacimiento')),'%Y-%m-%d')
             updated_user.rol = request.form.get('rol')
             updated_user.phone = request.form.get('phone')
             updated_user.document = request.form.get('documento')
             updated_user.email = request.form.get('email')
-
             db.session.add(updated_user)
-            db.session.commit()
-            
-            flash('Usuario actualizado',category='success')
-        
-        if request.form.get('action') == 'agregar':
-            
+            db.session.commit()            
+            flash('Usuario actualizado',category='success')        
+        if request.form.get('action') == 'agregar':            
             User.create_user(request.form.get('name'),datetime.strptime(str(request.form.get('nacimiento')),'%Y-%m-%d'),request.form.get('rol'),request.form.get('phone'),
-                             request.form.get('documento'),request.form.get('email'),'password_temp')
-            
-            flash('Usuario Creado',category='success') 
-            
-        if request.form.get('action') == 'eliminar':
-            
+                             request.form.get('documento'),request.form.get('email'),'password_temp')            
+            flash('Usuario Creado',category='success')             
+        if request.form.get('action') == 'eliminar':            
             User.delete_user(updated_user.id)
-            flash('Usuario eliminado',category='success')  
-        
+            flash('Usuario eliminado',category='success')          
         return redirect(url_for('crud_usuario_page'))
-
-    if request.method == 'GET':
-        
+    if request.method == 'GET':        
         users = User.query.all()
         return render_template('userCrud.html',users = users)
 
@@ -208,3 +195,66 @@ def crud_reservation_page():
     
         reservations = Reserva.query.all()
         return render_template('reservationCrud.html', reservations=reservations)
+
+'''
+Panel Administrador - Erlin
+'''
+
+@app.route('/Administrador')
+def adminPage():
+    return render_template('Administrador.html')
+
+@app.route('/control_user_admin', methods=['GET','POST'])
+def crud_usuario_admin():
+    
+    if request.method == 'POST':        
+        updated_user = User.query.filter_by(id=request.form.get('id')).first()        
+        if request.form.get('action') == 'editar':            
+            updated_user.name = request.form.get('name')
+            updated_user.birth_date = datetime.strptime(str(request.form.get('nacimiento')),'%Y-%m-%d')
+            updated_user.rol = request.form.get('rol')
+            updated_user.phone = request.form.get('phone')
+            updated_user.document = request.form.get('documento')
+            updated_user.email = request.form.get('email')
+            db.session.add(updated_user)
+            db.session.commit()            
+            flash('Usuario actualizado',category='success')        
+        if request.form.get('action') == 'agregar':            
+            User.create_user(request.form.get('name'),datetime.strptime(str(request.form.get('nacimiento')),'%Y-%m-%d'),request.form.get('rol'),request.form.get('phone'),
+                             request.form.get('documento'),request.form.get('email'),'password_temp')            
+            flash('Usuario Creado',category='success')             
+        if request.form.get('action') == 'eliminar':            
+            User.delete_user(updated_user.id)
+            flash('Usuario eliminado',category='success')          
+        return redirect(url_for('crud_usuario_admin'))    
+    if request.method == 'GET':        
+        users = User.query.all()
+        return render_template('userCrudAdmin.html',users = users)
+
+@app.route('/control_rooms_admin', methods=['GET','POST'])
+def crud_room_admin():
+    
+    if request.method == 'POST':        
+        updated_room = Room.query.filter_by(id=request.form.get('id')).first()        
+        if request.form.get('action') == 'editar':            
+            try:                
+                updated_room.roomNumber = request.form.get('name')
+                updated_room.disponibilidad = request.form.get('disponibilidad')                     
+                db.session.add(updated_room)
+                db.session.commit()            
+                flash('Habitacion actualizada con exito',category='success')                
+            except:                
+                flash('Revise informacion suministrada',category='danger')        
+        if request.form.get('action') == 'agregar':            
+            try:  
+                Room.create_room(request.form.get('room_number'), int(request.form.get('disponibilidad')))
+                flash('Habitacion creada con exito',category='success') 
+            except:
+                flash('Revise informacion suministrada',category='danger')        
+        if request.form.get('action') == 'eliminar':            
+            Room.delete_room(id=updated_room.id)
+            flash('Habitacion eliminada', category='success')             
+        return redirect(url_for('crud_room_admin'))        
+    if request.method == 'GET':        
+        rooms = Room.query.all()
+        return render_template('roomCrudAdmin.html',rooms = rooms)
