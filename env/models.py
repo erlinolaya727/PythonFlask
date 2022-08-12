@@ -1,7 +1,7 @@
 from datetime import date
 from env import db
 from env import func
-from env import bcrypt
+from werkzeug.security import check_password_hash, generate_password_hash
 from datetime import datetime, timedelta
 import uuid
 
@@ -27,16 +27,16 @@ class User(db.Model):
     booked = db.relationship(
         'Reserva', backref='booked_by', lazy=True)
     
-    @property
-    def password(self):
-        return self.password
-    
-    @password.setter
-    def password(self, plain_text_password):
-        self.password_hash = bcrypt.generate_password_hash(plain_text_password).decode('utf-8')
-
-    def check_password_correction(self, attempted_password):
-        return bcrypt.check_password_hash(self.password_hash, attempted_password)
+    #@property
+    #def password(self):
+    #    return self.password
+    #
+    #@password.setter
+    #def password(self, plain_text_password):
+    #    self.password_hash = bcrypt.generate_password_hash(plain_text_password).decode('utf-8')
+#
+    #def check_password_correction(self, attempted_password):
+    #    return bcrypt.check_password_hash(self.password_hash, attempted_password)
         
 
     def __init__(self, name: str, birth_date: date, rol: str, phone: int, document: int, email_address: str,
@@ -55,7 +55,7 @@ class User(db.Model):
     def create_user(name: str, birth_date: str, rol: str, phone: int, document: int, email_address: str,
                     password: str):
         
-        password_hash = bcrypt.generate_password_hash(password).decode('utf-8')
+        password_hash = generate_password_hash("password")
         
         user = User(name, birth_date, rol, phone,
                     document, email_address, password_hash)
