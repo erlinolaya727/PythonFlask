@@ -3,6 +3,99 @@ from flask import render_template, request, flash, redirect, url_for
 from env.models import User, Room, Reserva
 from env import db
 from datetime import datetime
+#from sqlite3 import Error, dbapi2
+import sqlite3
+import uuid
+
+'''
+Reservar Habitaciones - Jorge
+'''
+
+@app.route('/habitaciones')
+def Reservar():    
+    return render_template("shop.html")
+
+@app.route('/asignarHabitacion/<int:nHab>',methods=['GET','POST'])
+def AsignarHabitacion(nHab):
+    
+    conn = sqlite3.connect('./env/db/hoteldb.db')
+    cursor = conn.cursor()
+    instruction = f"SELECT check_out_date FROM reserva WHERE room_booking = '{nHab}'ORDER BY id DESC;"
+    cursor.execute(instruction)
+    fmin = cursor.fetchone()
+    conn.commit()
+    conn.close()
+    
+    if fmin ==None:
+        fmin = datetime.now()
+        fmin = fmin.strftime("%Y-%m-%d")
+    else:
+        fmin = fmin[0]
+    print(fmin)
+    usuario = User.query.filter_by(email_address='vicentefb@uninorte.edu.co').first().email_address
+    return render_template("shop-single.html",nHab=nHab,usuario=usuario,fmin=fmin)
+
+@app.route('/VerReserva')
+def ver_reserva():
+    usuario = User.query.filter_by(email_address='vicentefb@uninorte.edu.co').first().email_address
+    conn = sqlite3.connect("./env/db/hoteldb.db")
+    cursor = conn.cursor()
+    instruction = f"SELECT id FROM user WHERE email_address = '{usuario}'"
+    cursor.execute(instruction)
+    id = cursor.fetchone()
+    conn.commit()
+    conn.close()
+    id=int(id[0])
+    print(id)
+
+    conn = sqlite3.connect("./env/db/hoteldb.db")
+    cursor = conn.cursor()
+    instruction2 = f"SELECT room_booking,check_in_date,check_out_date,costo_reserva FROM reserva WHERE user_booking = {id} ORDER BY id DESC;"
+    cursor.execute(instruction2)
+    reserva = cursor.fetchone()
+    conn.commit()
+    conn.close()
+    hab=reserva[0]
+    fecha_ingreso=reserva[1]
+    fecha_salida=reserva[2]
+    costo = reserva[3]
+    
+    return render_template("Avisoreserva.html",hab=hab,fecha_ingreso=fecha_ingreso,fecha_salida=fecha_salida,costo=costo,usuario=usuario)
+
+@app.route('/rHab/<int:nHab>',methods=['GET','POST'])
+def reservaHabitacion(nHab):
+    usuario = User.query.filter_by(email_address='vicentefb@uninorte.edu.co').first().email_address
+    conn = sqlite3.connect("./env/db/hoteldb.db")
+    cursor = conn.cursor()
+    instruction = f"SELECT id FROM user WHERE email_address = '{usuario}'"
+    cursor.execute(instruction)
+    Ide = cursor.fetchone()
+    conn.commit()
+    conn.close()
+    Ide=int(Ide[0])
+
+    if request.method == 'POST':
+        NumeroHab = nHab
+        fecha_ingreso = request.form['fecha_ingreso']
+        fecha_salida = request.form['fecha_egreso']
+        #num_reserva = str(uuid.uuid4().int)
+        date1=datetime.strptime(fecha_ingreso, '%Y-%m-%d')
+        date2=datetime.strptime(fecha_salida, '%Y-%m-%d')
+        #dif= (date2-date1).days
+        #dif=dif.days
+        #precio = (dif*100000)
+        
+        if (date2-date1).days > 0:
+            Reserva.create_reserva(date1, date2,NumeroHab,Ide)
+            return redirect(url_for("ver_reserva"))
+            
+        else:
+            
+            return redirect(url_for("Reserva"))
+
+'''
+Panel SuperUsuario - Vicente
+'''
 
 @app.route('/controlpanel')
 def home_page():
