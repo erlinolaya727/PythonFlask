@@ -8,77 +8,6 @@ from markupsafe import escape
 import sqlite3
 import uuid
 
-
-'''
-Login - Sebastian
-'''
-@app.route('/')
-@app.route('/LoginForm', methods=['GET', 'POST'])
-def login():
-    if request.method == 'POST':
-        username = escape(request.form["Correo"])
-        password = escape(request.form["Contrasena"])
-        
-        print(f'Usuario: {username}')
-        print(f'Contraseña:{password}')
-
-        with sqlite3.connect("./env/db/hoteldb.db") as con: 
-            cur= con.cursor()
-            sql = cur.execute("SELECT password_hash FROM user where email_address = ?",[username]).fetchone()
-            rol = cur.execute("SELECT rol FROM user where email_address = ?",[username]).fetchone() 
-            sql2 = cur.execute("SELECT * FROM user where email_address = ?", [username]).fetchall()
-           
-            print(sql[0])
-            print(rol)
-            print(sql2)
-
-            if sql!=None:
-                clavehash = sql[0]
-                session.clear()
-                if check_password_hash(clavehash,password):
-                    session["loginsuccess"] = True
-                    session['Correo'] = username
-                   
-                    if rol[0]=="Usuario":
-                        return render_template("shop.html", datosuser = sql2[0], session = session)
-                    if rol[0]=="Administrador":
-                        return redirect(url_for("Administrador.html", username = username))
-                    else:
-                        return redirect(url_for("panelSuper", username = username)) 
-                       
-                else:
-                    return redirect(url_for('login')) 
-
-    return render_template("LoginForm.html")
-
-#---Cerrar sesion---#
-@app.route('/logout')
-def logout():
-    session.pop('loginsuccess', None)   #--Destruir despues de cerrar--
-    return redirect(url_for('login'))
-
-@app.route('/RegisterForm', methods=['GET', 'POST'])
-def newUser():
-    if request.method == "POST":
-        nombre = escape(request.form["nombre"])
-        birth = datetime.strptime(request.form["edad"],'%Y-%m-%d')
-        rol = "Usuario"
-        telefono = request.form["telefono"]
-        cedula = request.form["cedula"]
-        correo = request.form["correo"]
-        password = escape(request.form["contrasena"])
-        hash_pass = generate_password_hash(password)
-        
-
-        with sqlite3.connect("./env/db/hoteldb.db") as con: 
-            sql = con.cursor() 
-            sql.execute("INSERT INTO user(name, birth_date, rol, phone, document, email_address, password_hash) values (?, ?, ?, ?, ?, ?, ?)",(nombre, birth, rol,telefono, cedula, correo, hash_pass))
-            con.commit() 
-            session['name'] = nombre
-            
-            return redirect(url_for("login"))
-    return redirect(url_for("newUser"))
-
 '''
 Login - Sebastian
 '''
@@ -174,12 +103,12 @@ def AsignarHabitacion(nHab):
     else:
         fmin = fmin[0]
     print(fmin)
-    usuario = session['Correo']
+    usuario = User.query.filter_by(email_address='vicentefb@uninorte.edu.co').first().email_address
     return render_template("shop-single.html",nHab=nHab,usuario=usuario,fmin=fmin)
 
 @app.route('/VerReserva')
 def ver_reserva():
-    usuario = session['Correo']
+    usuario = User.query.filter_by(email_address='vicentefb@uninorte.edu.co').first().email_address
     conn = sqlite3.connect("./env/db/hoteldb.db")
     cursor = conn.cursor()
     instruction = f"SELECT id FROM user WHERE email_address = '{usuario}'"
@@ -206,7 +135,7 @@ def ver_reserva():
 
 @app.route('/rHab/<int:nHab>',methods=['GET','POST'])
 def reservaHabitacion(nHab):
-    usuario = session['Correo']
+    usuario = User.query.filter_by(email_address='vicentefb@uninorte.edu.co').first().email_address
     conn = sqlite3.connect("./env/db/hoteldb.db")
     cursor = conn.cursor()
     instruction = f"SELECT id FROM user WHERE email_address = '{usuario}'"
