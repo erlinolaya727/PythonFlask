@@ -103,12 +103,12 @@ def AsignarHabitacion(nHab):
     else:
         fmin = fmin[0]
     print(fmin)
-    usuario = User.query.filter_by(email_address='vicentefb@uninorte.edu.co').first().email_address
+    usuario = session['Correo']
     return render_template("shop-single.html",nHab=nHab,usuario=usuario,fmin=fmin)
 
 @app.route('/VerReserva')
 def ver_reserva():
-    usuario = User.query.filter_by(email_address='vicentefb@uninorte.edu.co').first().email_address
+    usuario = session['Correo']
     conn = sqlite3.connect("./env/db/hoteldb.db")
     cursor = conn.cursor()
     instruction = f"SELECT id FROM user WHERE email_address = '{usuario}'"
@@ -135,7 +135,7 @@ def ver_reserva():
 
 @app.route('/rHab/<int:nHab>',methods=['GET','POST'])
 def reservaHabitacion(nHab):
-    usuario = User.query.filter_by(email_address='vicentefb@uninorte.edu.co').first().email_address
+    usuario = session['Correo']
     conn = sqlite3.connect("./env/db/hoteldb.db")
     cursor = conn.cursor()
     instruction = f"SELECT id FROM user WHERE email_address = '{usuario}'"
