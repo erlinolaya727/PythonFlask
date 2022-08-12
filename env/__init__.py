@@ -15,4 +15,3 @@ app.config['SECRET_KEY'] = '0365968fd2da00888b679041'
 db = SQLAlchemy(app)
 
 from env import routes
-
